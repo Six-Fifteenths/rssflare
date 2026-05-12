@@ -1,0 +1,75 @@
+name = "rssflare"
+main = "src/index.ts"
+compatibility_date = "2026-02-24"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# ==================== Runtime Configurations ====================
+[vars]
+# You can customize RSSFlare here. Changes here don't require rebuilding.
+# Uncomment the parameters you wish to override:
+
+# USER_AGENT = "Mozilla/5.0 (compatible; RSSFlare Custom Bot/1.0)"
+# FEED_CACHE_MAX_AGE = "600"
+# DEBUG_SAVE_HTML = "false"
+# MASTER_BATCH_SIZE = "5"
+# MASTER_FETCH_TIMEOUT = "30 seconds"
+# MASTER_FETCH_RETRIES = "2"
+# MASTER_FETCH_RETRY_DELAY = "5 seconds"
+# MASTER_WAIT_CHILD_TIMEOUT = "30 minutes"
+# MASTER_SAVE_FEED_TIMEOUT = "30 seconds"
+# MASTER_SAVE_FEED_RETRIES = "1"
+# MASTER_SAVE_FEED_RETRY_DELAY = "5 seconds"
+# MAX_CONTENT_LENGTH = "300000"
+# DETAIL_POLITE_DELAY = "1 second"
+# DETAIL_PROCESS_TIMEOUT = "30 seconds"
+# DETAIL_PROCESS_RETRIES = "2"
+# DETAIL_PROCESS_RETRY_DELAY = "10 seconds"
+# DETAIL_NOTIFY_RETRIES = "3"
+# DETAIL_NOTIFY_RETRY_DELAY = "5 seconds"
+# =================================================================
+
+# KV: Store config
+[[kv_namespaces]]
+binding = "KV"
+id = "73a58463a1564bb4a43ec7b7619d593c"
+
+# R2: Store XML (Writes have high free tier limit)
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "rssflare"
+
+# D1: Core article cache, circumvents Payload limits
+[[d1_databases]]
+binding = "D1"
+database_name = "rssflare"
+database_id = "81f0187e-ce24-4217-8a67-d012da6509a9"
+
+# Queue: Task buffer
+[[queues.producers]]
+queue = "rssflare1"
+binding = "QUEUE"
+
+[[queues.consumers]]
+queue = "rssflare1"
+max_batch_size = 3
+max_batch_timeout = 30
+dead_letter_queue = "rssflare2"
+
+# Workflow: Core Crawler (Master)
+[[workflows]]
+name = "rssflare-master"
+binding = "MASTER_WORKFLOW"
+class_name = "MasterCrawlerWorkflow"
+
+# Workflow: Core Crawler (Child)
+[[workflows]]
+name = "rssflare-child"
+binding = "CHILD_WORKFLOW"
+class_name = "DetailCrawlerWorkflow"
+
+# Cron: Scheduled triggers
+[triggers]
+crons = ["6 */3 * * *"]

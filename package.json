@@ -1,0 +1,34 @@
+{
+  "name": "rssflare",
+  "version": "1.0.0",
+  "description": "RSSFlare: A lightweight RSS aggregator built on Cloudflare Workers ecosystem with Workflows, Queues, R2, D1 and KV.",
+  "author": "William Gates",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/williamgateszhao/rssflare.git"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "prepare-github": "bash scripts/prepare-github-release.sh",
+    "predev": "node scripts/generate-parsers.js",
+    "predeploy": "npm run format && node scripts/generate-parsers.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute D1_DB --local --file=./schema.sql",
+    "db:init:remote": "wrangler d1 execute D1_DB --remote --file=./schema.sql"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "dayjs": "^1.11.11",
+    "feed": "^4.2.2",
+    "hono": "^4.4.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "prettier": "^3.5.2",
+    "typescript": "^5.5.0",
+    "wrangler": "^4.70.0"
+  }
+}
